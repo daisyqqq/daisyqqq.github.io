@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>centos7_rocksdb_deploy | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="本文使用的是Rocksdb v6.3.6。按照官网提供的安装步骤，编译db_bench时会在gflags和snappy两个地方出现问题。 gflags 需要gflags v2.1.2及以上版本。 按照官方安装步骤，ccmake配置编译参数时需要打开BUILD_SHARED_LIBS选项生成共享库，否则会报错relocation R_X86_64_32S against .rodata can no">
+<meta property="og:type" content="article">
+<meta property="og:title" content="centos7_rocksdb_deploy">
+<meta property="og:url" content="http://yoursite.com/2020/03/06/centos7-rocksdb-deploy/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="本文使用的是Rocksdb v6.3.6。按照官网提供的安装步骤，编译db_bench时会在gflags和snappy两个地方出现问题。 gflags 需要gflags v2.1.2及以上版本。 按照官方安装步骤，ccmake配置编译参数时需要打开BUILD_SHARED_LIBS选项生成共享库，否则会报错relocation R_X86_64_32S against .rodata can no">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-03-06T14:45:30.000Z">
+<meta property="article:modified_time" content="2020-03-06T14:46:51.691Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-centos7-rocksdb-deploy" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/03/06/centos7-rocksdb-deploy/" class="article-date">
+  <time datetime="2020-03-06T14:45:30.000Z" itemprop="datePublished">2020-03-06</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      centos7_rocksdb_deploy
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文使用的是Rocksdb <strong>v6.3.6</strong>。按照<a href="https://github.com/facebook/rocksdb/blob/master/INSTALL.md" target="_blank" rel="noopener">官网</a>提供的安装步骤，编译db_bench时会在gflags和snappy两个地方出现问题。</p>
+<h1 id="gflags"><a href="#gflags" class="headerlink" title="gflags"></a>gflags</h1><ul>
+<li>需要gflags <a href="https://github.com/gflags/gflags" target="_blank" rel="noopener">v2.1.2</a>及以上版本。</li>
+<li>按照<a href="https://github.com/gflags/gflags/blob/master/INSTALL.md" target="_blank" rel="noopener">官方安装步骤</a>，ccmake配置编译参数时需要打开<strong>BUILD_SHARED_LIBS</strong>选项生成共享库，否则会报错<br><code>relocation R_X86_64_32S against .rodata can not be used when making a shared object; recompile with -fPIC</code></li>
+<li>将gflags的include path加到CPATH中，lib path加到LIBRARY_PATH中，db_bench编译成功。</li>
+<li>运行db_bench时出现：<br><code>error while loading shared libraries: libgflags.so.2: cannot open shared object file: No such file or directory</code><br>这是因为LIBRARY_PATH是gcc在编译前搜索静态库(.a)和共享库(.so)的路径；而LD_LIBRARY_PATH则是运行时搜索共享库的路径。静态库在编译时被拷贝到了目标文件中，因此运行时不再需要搜索路径。gflags以共享库形式链接，因此需要配置LD_LIBRARY_PATH。在用户目录下的.bash_profile中配置：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">export CPATH&#x3D;$CPATH:&#x2F;usr&#x2F;local&#x2F;include</span><br><span class="line">export LIBRARY_PATH&#x3D;$LIBRARY_PATH:&#x2F;usr&#x2F;local&#x2F;lib</span><br><span class="line">export LD_LIBRARY_PATH&#x3D;$LD_LIBRARY_PATH:&#x2F;usr&#x2F;local&#x2F;lib</span><br></pre></td></tr></table></figure>
+<h1 id="Snappy"><a href="#Snappy" class="headerlink" title="Snappy"></a>Snappy</h1>解决完gflags的问题后，发现db_bench运行时仍然会出现报错<br><code>open error: Invalid argument: Compression type Snappy is not linked with the binary.</code><br><a href="https://github.com/facebook/rocksdb/issues/761#issuecomment-500249965" target="_blank" rel="noopener">link</a>中指出是snappy版本问题，而CentOS 7的snappy版本为1.1.0，若要升级会出现大量依赖包的版本问题，本文选择的方式是关闭压缩选项<br><code>--compression_type=none</code></li>
+</ul>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ul>
+<li><a href="https://github.com/facebook/rocksdb/blob/master/INSTALL.md" target="_blank" rel="noopener">https://github.com/facebook/rocksdb/blob/master/INSTALL.md</a></li>
+<li><a href="https://github.com/facebook/rocksdb/issues/761" target="_blank" rel="noopener">https://github.com/facebook/rocksdb/issues/761</a></li>
+<li><a href="https://github.com/gflags/gflags/blob/master/INSTALL.md" target="_blank" rel="noopener">https://github.com/gflags/gflags/blob/master/INSTALL.md</a></li>
+<li><a href="https://hyunyoung2.github.io/2016-04-07-While_Loading_Shared_Libraries,_error_Cannot_Open_Shared_Object_File" target="_blank" rel="noopener">https://hyunyoung2.github.io/2016-04-07-While_Loading_Shared_Libraries,_error_Cannot_Open_Shared_Object_File</a></li>
+<li><a href="https://stackoverflow.com/questions/4250624/ld-library-path-vs-library-path" target="_blank" rel="noopener">https://stackoverflow.com/questions/4250624/ld-library-path-vs-library-path</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/03/06/centos7-rocksdb-deploy/" data-id="ck7gan8ir0000lfrva8g6g7eh" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/03/06/centos7-rocksdb-deploy/">centos7_rocksdb_deploy</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
