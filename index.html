@@ -168,7 +168,7 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2020-03-17 01:35:27" itemprop="dateCreated datePublished" datetime="2020-03-17T01:35:27+08:00">2020-03-17</time>
+              <time title="Created: 2020-03-17 01:44:08" itemprop="dateCreated datePublished" datetime="2020-03-17T01:44:08+08:00">2020-03-17</time>
             </span>
 
           
@@ -184,24 +184,17 @@
       
           <p>本文使用的是Rocksdb <strong>v6.3.6</strong>。按照<a href="https://github.com/facebook/rocksdb/blob/master/INSTALL.md" target="_blank" rel="noopener">官网</a>提供的安装步骤，编译db_bench时会在gflags和snappy两个地方出现问题。</p>
 <h1 id="gflags"><a href="#gflags" class="headerlink" title="gflags"></a>gflags</h1><ul>
-<li><p>需要gflags <a href="https://github.com/gflags/gflags" target="_blank" rel="noopener">v2.1.2</a>及以上版本。</p>
-</li>
-<li><p>按照<a href="https://github.com/gflags/gflags/blob/master/INSTALL.md" target="_blank" rel="noopener">官方安装步骤</a>，ccmake配置编译参数时需要打开<strong>BUILD_SHARED_LIBS</strong>选项生成共享库，否则会报错<br><code>relocation R_X86_64_32S against .rodata can not be used when making a shared object; recompile with -fPIC</code></p>
-</li>
-<li><p>将gflags的include path加到CPATH中，lib path加到LIBRARY_PATH中，db_bench编译成功。</p>
-</li>
-<li><p>运行db_bench时出现：<br><code>error while loading shared libraries: libgflags.so.2: cannot open shared object file: No such file or directory</code><br>这是因为LIBRARY_PATH是gcc在编译前搜索静态库(.a)和共享库(.so)的路径；而LD_LIBRARY_PATH则是运行时搜索共享库的路径。静态库在编译时被拷贝到了目标文件中，因此运行时不再需要搜索路径。gflags以共享库形式链接，因此需要配置LD_LIBRARY_PATH。在用户目录下的.bash_profile中配置：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">export CPATH&#x3D;$CPATH:&#x2F;usr&#x2F;local&#x2F;include</span><br><span class="line">export LIBRARY_PATH&#x3D;$LIBRARY_PATH:&#x2F;usr&#x2F;local&#x2F;lib</span><br><span class="line">export LD_LIBRARY_PATH&#x3D;$LD_LIBRARY_PATH:&#x2F;usr&#x2F;local&#x2F;lib</span><br></pre></td></tr></table></figure></li>
-<li><p>clion remote调试db_bench时仍然会出现：<br><code>error while loading shared libraries: libgflags.so.2: cannot open shared object file: No such file or directory</code></p>
-<ul>
-<li><p>在.bashrc中配置完上一条的环境变量后报错消失，运行成功。（但.bashrc是local session的配置，.bash_profile才是remote session的配置，涉及clion remote的原理，<strong>原因尚不明</strong>）</p>
-</li>
-<li><p>也可以在Run/Debug Configuration中配置Environment variables。但要注意是否选中“include system environment variables”，加入本地机器环境变量，注意变量不要覆盖</p>
-<h1 id="Snappy"><a href="#Snappy" class="headerlink" title="Snappy"></a>Snappy</h1><p>解决完gflags的问题后，发现db_bench运行时仍然会出现报错<br><code>open error: Invalid argument: Compression type Snappy is not linked with the binary.</code><br><a href="https://github.com/facebook/rocksdb/issues/761#issuecomment-500249965" target="_blank" rel="noopener">link</a>中指出是snappy版本问题，而CentOS 7的snappy版本为1.1.0，若要升级会出现大量依赖包的版本问题，本文选择的方式是关闭压缩选项<br><code>--compression_type=none</code></p>
-</li>
+<li>需要gflags <a href="https://github.com/gflags/gflags" target="_blank" rel="noopener">v2.1.2</a>及以上版本。</li>
+<li>按照<a href="https://github.com/gflags/gflags/blob/master/INSTALL.md" target="_blank" rel="noopener">官方安装步骤</a>，ccmake配置编译参数时需要打开<strong>BUILD_SHARED_LIBS</strong>选项生成共享库，否则会报错：<br><code>relocation R_X86_64_32S against .rodata can not be used when making a shared object; recompile with -fPIC</code></li>
+<li>将gflags的include path加到CPATH中，lib path加到LIBRARY_PATH中，db_bench编译成功。</li>
+<li>运行db_bench时出现：<br><code>error while loading shared libraries: libgflags.so.2: cannot open shared object file: No such file or directory</code><br>这是因为LIBRARY_PATH是gcc在编译前搜索静态库(.a)和共享库(.so)的路径；而LD_LIBRARY_PATH则是运行时搜索共享库的路径。静态库在编译时被拷贝到了目标文件中，因此运行时不再需要搜索路径。gflags以共享库形式链接，因此需要配置LD_LIBRARY_PATH。在用户目录下的.bash_profile中配置：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">export CPATH&#x3D;$CPATH:&#x2F;usr&#x2F;local&#x2F;include</span><br><span class="line">export LIBRARY_PATH&#x3D;$LIBRARY_PATH:&#x2F;usr&#x2F;local&#x2F;lib</span><br><span class="line">export LD_LIBRARY_PATH&#x3D;$LD_LIBRARY_PATH:&#x2F;usr&#x2F;local&#x2F;lib</span><br></pre></td></tr></table></figure></li>
+<li>clion remote调试db_bench时仍然会出现：<br><code>error while loading shared libraries: libgflags.so.2: cannot open shared object file: No such file or directory</code>，解决方法：<ul>
+<li>在.bashrc中配置完上一条的环境变量后报错消失，运行成功。（但.bashrc是local session的配置，.bash_profile才是remote session的配置，涉及clion remote的原理，<strong>原因尚不明</strong>）。    </li>
+<li>也可以在Run/Debug Configuration中配置Environment variables。但要注意是否选中“include system environment variables”，加入本地机器环境变量，注意变量不要覆盖。</li>
 </ul>
 </li>
 </ul>
+<h1 id="Snappy"><a href="#Snappy" class="headerlink" title="Snappy"></a>Snappy</h1><p>解决完gflags的问题后，发现db_bench运行时仍然会出现报错<br><code>open error: Invalid argument: Compression type Snappy is not linked with the binary.</code>。<br><a href="https://github.com/facebook/rocksdb/issues/761#issuecomment-500249965" target="_blank" rel="noopener">link</a>中指出是snappy版本问题，而CentOS 7的snappy版本为1.1.0，若要升级会出现大量依赖包的版本问题，本文选择的方式是关闭压缩选项：<br><code>--compression_type=none</code>。</p>
 <h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ul>
 <li><a href="https://github.com/facebook/rocksdb/blob/master/INSTALL.md" target="_blank" rel="noopener">https://github.com/facebook/rocksdb/blob/master/INSTALL.md</a></li>
 <li><a href="https://github.com/facebook/rocksdb/issues/761" target="_blank" rel="noopener">https://github.com/facebook/rocksdb/issues/761</a></li>
