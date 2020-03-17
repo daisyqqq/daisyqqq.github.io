@@ -27,8 +27,8 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="本文使用的是Rocksdb v6.3.6。按照官网提供的安装步骤，编译运行db_bench，出现的问题： gflags 需要gflags v2.1.2及以上版本。 按照官方安装步骤，ccmake配置编译参数时需要打开BUILD_SHARED_LIBS选项生成共享库，否则会报错：relocation R_X86_64_32S against .rodata can not be used when">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2020-03-17T16:25:28.460Z">
-<meta property="article:modified_time" content="2020-03-17T16:25:28.460Z">
+<meta property="article:published_time" content="2020-03-17T16:36:58.906Z">
+<meta property="article:modified_time" content="2020-03-17T16:36:58.906Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 
@@ -171,7 +171,7 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2020-03-18 00:25:28" itemprop="dateCreated datePublished" datetime="2020-03-18T00:25:28+08:00">2020-03-18</time>
+              <time title="Created: 2020-03-18 00:36:58" itemprop="dateCreated datePublished" datetime="2020-03-18T00:36:58+08:00">2020-03-18</time>
             </span>
 
           
@@ -197,6 +197,8 @@
 <h1 id="Snappy"><a href="#Snappy" class="headerlink" title="Snappy"></a>Snappy</h1><p>解决完gflags的问题后，发现db_bench运行时仍然会出现报错<br><code>open error: Invalid argument: Compression type Snappy is not linked with the binary.</code>。<br><a href="https://github.com/facebook/rocksdb/issues/761#issuecomment-500249965" target="_blank" rel="noopener">link</a>中指出是snappy版本问题，而CentOS 7的snappy版本为1.1.0，若要升级会出现大量依赖包的版本问题，本文选择的方式是关闭压缩选项：<br><code>--compression_type=none</code>。</p>
 <h1 id="Clion-Remote-Debug"><a href="#Clion-Remote-Debug" class="headerlink" title="Clion Remote Debug"></a>Clion Remote Debug</h1><p>解决完gflags和snappy问题后可以本地运行调试。但在Clion Remote时会遇到一些问题：</p>
 <ul>
+<li><p>本实验云服务器是单核的，编译选项开-j4会报错，开成-j2即可。</p>
+</li>
 <li><p>build时出现：<code>error while loading shared libraries: libgflags.so.2: cannot open shared object file: No such file or directory</code>，解决方法：</p>
 <ul>
 <li>在.bashrc中配置完上一条的环境变量后报错消失，运行成功。（但.bashrc是local session的配置，.bash_profile才是remote session的配置，涉及clion remote的原理，<strong>原因尚不明</strong>）。    </li>
@@ -227,11 +229,11 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2020/03/18/ubuntu18.04-rocksdb-deploy/" rel="next" title="ubuntu18.04-rocksdb-deploy">
-      ubuntu18.04-rocksdb-deploy <i class="fa fa-chevron-right"></i>
+    <a href="/2020/03/18/ubuntu18.04-rocksdb-deploy/" rel="prev" title="ubuntu18.04-rocksdb-deploy">
+      <i class="fa fa-chevron-left"></i> ubuntu18.04-rocksdb-deploy
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
