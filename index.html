@@ -144,7 +144,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/18/centos7-rocksdb-deploy/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/23/centos7-rocksdb-deploy/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -158,7 +158,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            <a href="/2020/03/18/centos7-rocksdb-deploy/" class="post-title-link" itemprop="url">centos7-rocksdb-deploy</a>
+            <a href="/2020/03/23/centos7-rocksdb-deploy/" class="post-title-link" itemprop="url">centos7-rocksdb-deploy</a>
         </h1>
 
         <div class="post-meta">
@@ -168,7 +168,7 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2020-03-18 00:36:58" itemprop="dateCreated datePublished" datetime="2020-03-18T00:36:58+08:00">2020-03-18</time>
+              <time title="Created: 2020-03-23 21:32:38" itemprop="dateCreated datePublished" datetime="2020-03-23T21:32:38+08:00">2020-03-23</time>
             </span>
 
           
@@ -202,7 +202,7 @@
 <li>也可以在Run/Debug Configuration中配置Environment variables。但要注意是否选中“include system environment variables”，加入本地机器环境变量，注意变量不要覆盖。</li>
 </ul>
 </li>
-<li><p>build完后可以remote run，但不能remote debug。原因是clion remote debug需要的gdb版本&gt;=7.8，而centos7中gdb版本是7.6，<strong>该问题目前尚未解决</strong>。</p>
+<li><p>build完后可以remote run，但不能remote debug。原因是clion remote debug需要的gdb版本&gt;=7.8，而centos7中gdb版本是7.6。解决方法：安装<strong>devtoolset-8-gdb.x86_64</strong>，配置Clion中Toolchains的Debugger为devtoolset的gdb（/opt/rh/devtoolset-8/root/usr/bin/gdb）。</p>
 </li>
 </ul>
 <h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ul>
